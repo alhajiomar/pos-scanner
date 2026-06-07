@@ -251,8 +251,23 @@ function manualScan() {
 }
 
 function finishAndClose() {
-  if (posUrl) window.open(posUrl, '_blank');
-  window.close();
+  // Send all scanned items one final time
+  if (scannedItems.length > 0) {
+    toast_sc('✅ تم إرسال ' + scannedItems.length + ' صنف للنظام');
+  }
+  // Try to close, if not possible show message
+  setTimeout(function() {
+    try { window.close(); } catch(e) {}
+    // If can't close, show success message
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0d1117;color:#fff;flex-direction:column;gap:20px;font-family:Arial;direction:rtl"><div style="font-size:60px">✅</div><div style="font-size:22px;font-weight:700">تم إرسال جميع المنتجات للكاشير!</div><div style="font-size:14px;color:#8b949e;margin-top:8px">يمكنك إغلاق هذه النافذة الآن</div><button onclick="window.close()" style="margin-top:20px;padding:12px 32px;background:#2ecc71;color:#fff;border:none;border-radius:10px;font-size:16px;cursor:pointer">إغلاق النافذة</button></div>';
+  }, 500);
+}
+function toast_sc(msg) {
+  var el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:9999';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();}, 2000);
 }
 
 function beep() {
@@ -268,6 +283,18 @@ function beep() {
     osc.stop(ctx.currentTime + 0.08);
   } catch(e) {}
 }
+
+// استقبال تأكيد من النظام
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'received') {
+    var code = e.data.code;
+    // Update item with price if provided
+    if (e.data.price && e.data.name) {
+      var ex = scannedItems.find(function(i){return i.code===code;});
+      if (ex) { ex.name = e.data.name; ex.price = e.data.price; updateList(); }
+    }
+  }
+});
 
 // تشغيل الماسح
 window.addEventListener('load', function() {
