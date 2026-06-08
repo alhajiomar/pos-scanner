@@ -160,7 +160,7 @@ if (MODE === 'continuous') {
   badge.className = 'badge badge-green';
   show('cnt-card'); show('list-card'); show('btn-finish');
 } else {
-  badge.textContent = '🎯 منتج واحد';
+  badge.textContent = '🎯 مسح منتج واحد';
   badge.className = 'badge badge-blue';
   show('btn-rescan');
 }
@@ -204,14 +204,20 @@ function onScan(code) {
 
   // Notify bar
   var nb = document.getElementById('notify-bar');
+  if (MODE === 'continuous') {
+    nb.textContent = '✅ أُضيف للفاتورة!';
+  }
   nb.classList.add('show');
   setTimeout(function(){nb.classList.remove('show');}, 1200);
 
+  // ===== إرسال فوري للكاشير في كلا الوضعين =====
+  sendSingle(code); // دائماً أرسل للـ POS فوراً
+
   if (MODE === 'continuous') {
-    addItem(code);
+    addItem(code); // تتبع محلي للعداد
+    // لا تغلق — استمر في المسح
   } else {
-    sendSingle(code);
-    showSuccess('pos', code);
+    showSuccess('pos', code); // وضع منتج واحد → أغلق بعد الإرسال
   }
 }
 
@@ -257,10 +263,16 @@ function sendBatch() {
 
 // === FINISH ===
 function finish() {
-  if (!Object.keys(items).length) { alert('لم تمسح أي منتج بعد!'); return; }
-  sendBatch();
+  // كل الباركودات تم إرسالها فوراً عند المسح
+  // زر الإنهاء فقط يغلق النافذة
   stopScanner();
-  showSuccess('continuous', null);
+  var count = Object.values(items).reduce(function(a,b){return a+b;},0);
+  document.getElementById('scanner-section').style.display='none';
+  var ss = document.getElementById('success-section');
+  ss.style.display='flex';
+  document.getElementById('success-sub').textContent =
+    'تم إرسال '+Object.keys(items).length+' صنف — '+count+' وحدة للفاتورة فوراً';
+  setTimeout(tryClose, 3000);
 }
 
 // === SUCCESS ===
