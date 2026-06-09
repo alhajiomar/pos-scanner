@@ -14,7 +14,7 @@
       --text:#f8fafc;--muted:#94a3b8;--border:#1e293b
     }
     body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-    
+
     header{
       background:linear-gradient(135deg,#0f172a,#1e293b);
       padding:14px 18px;border-bottom:2px solid var(--accent);text-align:center
@@ -26,17 +26,18 @@
     }
     .badge-blue{background:var(--accent);color:#020617}
     .badge-green{background:var(--green);color:#020617}
-    
+
     #scanner-section{flex:1;display:flex;flex-direction:column;align-items:center;padding:12px;gap:10px}
-    
+
     #reader{
       width:100%;max-width:400px;
       border:3px solid var(--accent);border-radius:14px;
       overflow:hidden;background:#000;min-height:220px;
       transition:border-color 0.3s,box-shadow 0.3s
     }
-    #reader.flash{border-color:var(--green);box-shadow:0 0 24px rgba(34,197,94,0.5)}
-    
+    #reader.flash-ok{border-color:var(--green);box-shadow:0 0 24px rgba(34,197,94,0.5)}
+    #reader.flash-bad{border-color:var(--red);box-shadow:0 0 24px rgba(239,68,68,0.5)}
+
     .card{
       width:100%;max-width:400px;
       background:var(--card2);border-radius:12px;
@@ -44,7 +45,8 @@
     }
     .card-lbl{color:var(--muted);font-size:0.78rem;margin-bottom:6px}
     #last-code{font-size:1.4rem;font-weight:900;color:var(--green);min-height:38px;word-break:break-all;letter-spacing:1px}
-    
+    #last-code.bad{color:var(--red)}
+
     .counter-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .cnt-box{
       background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.25);
@@ -52,18 +54,23 @@
     }
     .cnt-box .num{font-size:2.4rem;font-weight:900;color:var(--accent);line-height:1}
     .cnt-box .lbl{font-size:0.78rem;color:var(--muted);margin-top:4px}
-    
+
     .items-list{max-height:200px;overflow-y:auto;margin-top:10px}
     .scan-row{
       display:flex;justify-content:space-between;align-items:center;
       padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:0.85rem
     }
     .scan-row:last-child{border-bottom:none}
+    .scan-row.bad span:first-child{color:var(--red)}
     .qty-badge{
       background:var(--accent);color:#020617;
       border-radius:999px;padding:2px 10px;font-weight:700;font-size:0.78rem
     }
-    
+    .bad-badge{
+      background:var(--red);color:#fff;
+      border-radius:999px;padding:2px 10px;font-weight:700;font-size:0.72rem
+    }
+
     .btn{
       width:100%;max-width:400px;padding:14px;border:none;border-radius:12px;
       font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;
@@ -74,9 +81,9 @@
     .btn-green{background:var(--green);color:#fff}
     .btn-blue{background:var(--accent);color:#020617}
     .btn-outline{background:transparent;color:var(--muted);border:1px solid var(--border)}
-    
+
     #err{color:var(--red);text-align:center;font-size:0.85rem;padding:8px;max-width:400px}
-    
+
     #success-section{
       display:none;flex:1;flex-direction:column;
       align-items:center;justify-content:center;padding:40px 20px;text-align:center;gap:10px
@@ -84,20 +91,21 @@
     .big-icon{font-size:6rem;animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275)}
     @keyframes popIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
     .success-title{font-size:1.6rem;font-weight:900}
-    .success-sub{color:var(--muted);font-size:0.9rem;line-height:1.5}
-    
+    .success-sub{color:var(--muted);font-size:0.9rem;line-height:1.5;white-space:pre-line}
+
     #notify-bar{
       position:fixed;top:0;left:0;right:0;
-      background:var(--green);color:#fff;
       padding:10px;text-align:center;font-weight:700;font-size:0.9rem;
-      transform:translateY(-100%);transition:transform 0.3s;z-index:100
+      transform:translateY(-100%);transition:transform 0.3s;z-index:100;color:#fff
     }
+    #notify-bar.ok{background:var(--green)}
+    #notify-bar.bad{background:var(--red)}
     #notify-bar.show{transform:translateY(0)}
   </style>
 </head>
 <body>
   <div id="notify-bar">📦 تم مسح المنتج!</div>
-  
+
   <header>
     <h1>📷 ماسح الباركود — كاشير الحاجي عمر</h1>
     <span class="badge" id="mode-badge">جاري التحميل…</span>
@@ -115,7 +123,7 @@
     <!-- Continuous mode: counters -->
     <div id="cnt-card" class="card" style="display:none">
       <div class="counter-row">
-        <div class="cnt-box"><div class="num" id="cnt-types">0</div><div class="lbl">أصناف مختلفة</div></div>
+        <div class="cnt-box"><div class="num" id="cnt-types">0</div><div class="lbl">أصناف مقبولة</div></div>
         <div class="cnt-box"><div class="num" id="cnt-units">0</div><div class="lbl">إجمالي الوحدات</div></div>
       </div>
     </div>
@@ -129,7 +137,7 @@
     </div>
 
     <button class="btn btn-green" id="btn-finish" style="display:none" onclick="finish()">
-      ✅ إنهاء المسح وإرسال للكاشير
+      ✅ إنهاء المسح
     </button>
     <button class="btn btn-outline" id="btn-rescan" style="display:none" onclick="location.reload()">
       🔄 مسح منتج آخر
@@ -138,8 +146,8 @@
 
   <!-- SUCCESS SECTION -->
   <div id="success-section">
-    <div class="big-icon">✅</div>
-    <div class="success-title">تم الإرسال بنجاح!</div>
+    <div class="big-icon" id="success-icon">✅</div>
+    <div class="success-title" id="success-title">تم الإرسال بنجاح!</div>
     <div class="success-sub" id="success-sub">يمكنك إغلاق هذه النافذة</div>
     <button class="btn btn-blue" style="max-width:300px" onclick="tryClose()">✕ إغلاق النافذة</button>
     <button class="btn btn-outline" style="max-width:300px" onclick="location.reload()">🔄 مسح آخر</button>
@@ -150,8 +158,10 @@
 var MODE = (new URLSearchParams(location.search).get('mode') || 'pos');
 var DEBOUNCE = 1500;
 var scanner = null;
-var items = {}; // barcode -> count
+var items = {};      // barcode -> count (accepted only)
+var rejected = {};   // barcode -> count (not found in inventory)
 var lastTs = 0;
+var pending = {};    // barcode -> timeout id, awaiting cashier verdict
 
 // === SETUP ===
 var badge = document.getElementById('mode-badge');
@@ -188,6 +198,27 @@ scanner.start(
   document.getElementById('err').textContent = '⚠️ تعذّر الوصول للكاميرا: ' + e;
 });
 
+// === LISTEN FOR CASHIER VERDICT ===
+// الكاشير يرد: {scannerVerdict: {code, ok, name}}
+window.addEventListener('message', function(e){
+  if (e.data && e.data.scannerVerdict) {
+    handleVerdict(e.data.scannerVerdict);
+  }
+});
+// نقرأ أيضاً من localStorage (للحالات اللي ما في opener)
+setInterval(function(){
+  try {
+    var raw = localStorage.getItem('pos_verdict');
+    if (raw) {
+      var v = JSON.parse(raw);
+      if (Date.now() - v.ts < 4000) {
+        handleVerdict(v);
+        localStorage.removeItem('pos_verdict');
+      }
+    }
+  } catch(e){}
+}, 300);
+
 // === SCAN HANDLER ===
 function onScan(code) {
   var now = Date.now();
@@ -196,99 +227,142 @@ function onScan(code) {
 
   code = code.trim();
   document.getElementById('last-code').textContent = code;
+  document.getElementById('last-code').classList.remove('bad');
 
-  // Flash border
+  // أرسل للكاشير ليتحقق — لا نحتفل بعد
+  sendForCheck(code);
+
+  // مهلة أمان: إذا ما وصل رد خلال 2.5 ثانية نعتبره ناجح مبدئياً (توافقية مع نسخ قديمة)
+  if (pending[code]) clearTimeout(pending[code]);
+  pending[code] = setTimeout(function(){
+    delete pending[code];
+    // ما وصل رد — نفترض نجاح (الكاشير القديم ما بيرد)
+    handleVerdict({code: code, ok: true, name: '', assumed: true});
+  }, 2500);
+}
+
+// === VERDICT FROM CASHIER ===
+function handleVerdict(v) {
+  var code = String(v.code || '').trim();
+  if (!code) return;
+  if (pending[code]) { clearTimeout(pending[code]); delete pending[code]; }
+
   var r = document.getElementById('reader');
-  r.classList.add('flash');
-  setTimeout(function(){r.classList.remove('flash');}, 400);
-
-  // Notify bar
   var nb = document.getElementById('notify-bar');
-  if (MODE === 'continuous') {
-    nb.textContent = '✅ أُضيف للفاتورة!';
-  }
-  nb.classList.add('show');
-  setTimeout(function(){nb.classList.remove('show');}, 1200);
 
-  // ===== إرسال فوري للكاشير في كلا الوضعين =====
-  sendSingle(code); // دائماً أرسل للـ POS فوراً
+  if (v.ok) {
+    // مقبول
+    r.classList.add('flash-ok');
+    setTimeout(function(){ r.classList.remove('flash-ok'); }, 400);
 
-  if (MODE === 'continuous') {
-    addItem(code); // تتبع محلي للعداد
-    // لا تغلق — استمر في المسح
+    nb.className = 'ok show';
+    nb.textContent = MODE === 'continuous'
+      ? ('✅ أُضيف للفاتورة: ' + (v.name || code))
+      : ('✅ تم: ' + (v.name || code));
+    setTimeout(function(){ nb.classList.remove('show'); }, 1200);
+
+    if (MODE === 'continuous') {
+      items[code] = (items[code] || 0) + 1;
+      if (v.name) items['__name__' + code] = v.name;
+      updateCounters();
+      renderList();
+      // لا تغلق — استمر
+    } else {
+      showSuccess(true, code, v.name);
+    }
   } else {
-    showSuccess('pos', code); // وضع منتج واحد → أغلق بعد الإرسال
+    // مرفوض — غير موجود بالمستودع
+    r.classList.add('flash-bad');
+    setTimeout(function(){ r.classList.remove('flash-bad'); }, 600);
+
+    document.getElementById('last-code').classList.add('bad');
+
+    nb.className = 'bad show';
+    nb.textContent = '❌ غير موجود بالمستودع: ' + code;
+    setTimeout(function(){ nb.classList.remove('show'); }, 2200);
+
+    if (MODE === 'continuous') {
+      rejected[code] = (rejected[code] || 0) + 1;
+      renderList();
+      // استمر بالمسح
+    } else {
+      showSuccess(false, code, '');
+    }
   }
 }
 
-// === ITEMS (continuous) ===
-function addItem(code) {
-  items[code] = (items[code] || 0) + 1;
-  updateCounters();
-  renderList();
+// === SEND TO CASHIER FOR VERIFICATION ===
+function sendForCheck(code) {
+  var payload = {code: code, ts: Date.now()};
+  try { localStorage.setItem('pos_scan', JSON.stringify(payload)); } catch(e) {}
+  try { if (window.opener && !window.opener.closed) window.opener.postMessage({scannerCode: code}, '*'); } catch(e) {}
 }
 
+// === COUNTERS / LIST (continuous) ===
 function updateCounters() {
-  var types = Object.keys(items).length;
-  var units = Object.values(items).reduce(function(a,b){return a+b;},0);
+  var realCodes = Object.keys(items).filter(function(k){ return k.indexOf('__name__') !== 0; });
+  var types = realCodes.length;
+  var units = realCodes.reduce(function(a,k){ return a + items[k]; }, 0);
   document.getElementById('cnt-types').textContent = types;
   document.getElementById('cnt-units').textContent = units;
 }
 
 function renderList() {
-  var html = Object.keys(items).map(function(c) {
-    return '<div class="scan-row"><span>📦 ' + c + '</span><span class="qty-badge">× ' + items[c] + '</span></div>';
-  }).join('');
-  document.getElementById('items-list').innerHTML = html || '<div style="color:var(--muted);text-align:center;padding:14px">لم تمسح أي منتج</div>';
-}
-
-// === SEND ===
-function sendSingle(code) {
-  var payload = {code: code, ts: Date.now()};
-  try { localStorage.setItem('pos_scan', JSON.stringify(payload)); } catch(e) {}
-  try { if (window.opener) window.opener.postMessage({scannerCode: code}, '*'); } catch(e) {}
-}
-
-function sendBatch() {
-  var payload = {batch: true, items: items, ts: Date.now()};
-  try { localStorage.setItem('pos_scan_batch', JSON.stringify(payload)); } catch(e) {}
-  try { if (window.opener) window.opener.postMessage({scannerBatch: items}, '*'); } catch(e) {}
-  // Also send individually for compatibility
-  Object.keys(items).forEach(function(code) {
-    for (var i = 0; i < items[code]; i++) {
-      try { if (window.opener) window.opener.postMessage({scannerCode: code}, '*'); } catch(e) {}
-    }
+  var html = '';
+  // مقبول
+  Object.keys(items).forEach(function(c) {
+    if (c.indexOf('__name__') === 0) return;
+    var label = items['__name__' + c] || c;
+    html += '<div class="scan-row"><span>📦 ' + esc(label) + '</span><span class="qty-badge">× ' + items[c] + '</span></div>';
   });
+  // مرفوض
+  Object.keys(rejected).forEach(function(c) {
+    html += '<div class="scan-row bad"><span>⛔ ' + esc(c) + '</span><span class="bad-badge">غير موجود × ' + rejected[c] + '</span></div>';
+  });
+  document.getElementById('items-list').innerHTML = html ||
+    '<div style="color:var(--muted);text-align:center;padding:14px">لم تمسح أي منتج</div>';
 }
 
-// === FINISH ===
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// === FINISH (continuous) ===
 function finish() {
-  // كل الباركودات تم إرسالها فوراً عند المسح
-  // زر الإنهاء فقط يغلق النافذة
   stopScanner();
-  var count = Object.values(items).reduce(function(a,b){return a+b;},0);
-  document.getElementById('scanner-section').style.display='none';
+  var realCodes = Object.keys(items).filter(function(k){ return k.indexOf('__name__') !== 0; });
+  var count = realCodes.reduce(function(a,k){ return a + items[k]; }, 0);
+  var rejCount = Object.keys(rejected).length;
+
+  document.getElementById('scanner-section').style.display = 'none';
   var ss = document.getElementById('success-section');
-  ss.style.display='flex';
-  document.getElementById('success-sub').textContent =
-    'تم إرسال '+Object.keys(items).length+' صنف — '+count+' وحدة للفاتورة فوراً';
-  setTimeout(tryClose, 3000);
+  ss.style.display = 'flex';
+  document.getElementById('success-icon').textContent = '✅';
+  document.getElementById('success-title').textContent = 'انتهى المسح';
+
+  var msg = 'تمت إضافة ' + realCodes.length + ' صنف — ' + count + ' وحدة للفاتورة';
+  if (rejCount > 0) msg += '\n⚠️ ' + rejCount + ' باركود لم يُضف (غير موجود بالمستودع)';
+  document.getElementById('success-sub').textContent = msg;
+  setTimeout(tryClose, 3500);
 }
 
-// === SUCCESS ===
-function showSuccess(type, code) {
+// === SUCCESS (single mode) ===
+function showSuccess(ok, code, name) {
   stopScanner();
   document.getElementById('scanner-section').style.display = 'none';
   var ss = document.getElementById('success-section');
   ss.style.display = 'flex';
 
-  if (type === 'pos' && code) {
-    document.getElementById('success-sub').textContent = 'الباركود: ' + code + '\nيمكنك إغلاق هذه النافذة';
+  if (ok) {
+    document.getElementById('success-icon').textContent = '✅';
+    document.getElementById('success-title').textContent = 'تمت الإضافة بنجاح!';
+    document.getElementById('success-sub').textContent =
+      (name ? (name + '\n') : '') + 'الباركود: ' + code + '\nيمكنك إغلاق هذه النافذة';
     setTimeout(tryClose, 2500);
   } else {
-    var count = Object.values(items).reduce(function(a,b){return a+b;},0);
+    document.getElementById('success-icon').textContent = '❌';
+    document.getElementById('success-title').textContent = 'الباركود غير موجود!';
     document.getElementById('success-sub').textContent =
-      'تم إرسال ' + Object.keys(items).length + ' صنف — إجمالي ' + count + ' وحدة للكاشير';
+      'الباركود: ' + code + '\nلم تتم الإضافة — يجب تسجيل المنتج أولاً\nمن قسم 📦 المستودع';
+    // لا نغلق تلقائياً — نترك المستخدم يقرأ ويعيد المسح
   }
 }
 
