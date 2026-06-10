@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ماسح الباركود — كاشير الحاجي عمر</title>
+  <title>مسح مشتريات الزبون — كاشير الحاجي عمر</title>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
@@ -14,175 +14,164 @@
       --text:#f8fafc;--muted:#94a3b8;--border:#1e293b
     }
     body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-
     header{
       background:linear-gradient(135deg,#0f172a,#1e293b);
-      padding:14px 18px;border-bottom:2px solid var(--accent);text-align:center
+      padding:16px 18px;border-bottom:3px solid var(--green);text-align:center
     }
-    header h1{font-size:1.05rem;font-weight:900;margin-bottom:4px}
+    header h1{font-size:1.3rem;font-weight:900;margin-bottom:6px}
     .badge{
-      display:inline-block;padding:3px 14px;border-radius:999px;
-      font-size:0.75rem;font-weight:700;margin-top:2px
+      display:inline-block;padding:4px 18px;border-radius:999px;
+      font-size:0.85rem;font-weight:700;margin-top:2px
     }
-    .badge-blue{background:var(--accent);color:#020617}
     .badge-green{background:var(--green);color:#020617}
+    .badge-blue{background:var(--accent);color:#020617}
 
-    #scanner-section{flex:1;display:flex;flex-direction:column;align-items:center;padding:12px;gap:10px}
+    #scanner-section{flex:1;display:flex;flex-direction:column;align-items:center;padding:14px;gap:12px}
 
+    /* الماسح كبير */
     #reader{
-      width:100%;max-width:400px;
-      border:3px solid var(--accent);border-radius:14px;
-      overflow:hidden;background:#000;min-height:220px;
+      width:100%;max-width:520px;
+      border:4px solid var(--green);border-radius:18px;
+      overflow:hidden;background:#000;min-height:300px;
       transition:border-color 0.3s,box-shadow 0.3s
     }
-    #reader.flash-ok{border-color:var(--green);box-shadow:0 0 24px rgba(34,197,94,0.5)}
-    #reader.flash-bad{border-color:var(--red);box-shadow:0 0 24px rgba(239,68,68,0.5)}
+    #reader.flash-ok{border-color:var(--green);box-shadow:0 0 32px rgba(34,197,94,0.6)}
+    #reader.flash-bad{border-color:var(--red);box-shadow:0 0 32px rgba(239,68,68,0.6)}
 
     .card{
-      width:100%;max-width:400px;
-      background:var(--card2);border-radius:12px;
-      padding:14px;border:1px solid var(--border)
+      width:100%;max-width:520px;
+      background:var(--card2);border-radius:14px;
+      padding:16px;border:1px solid var(--border)
     }
-    .card-lbl{color:var(--muted);font-size:0.78rem;margin-bottom:6px}
-    #last-code{font-size:1.4rem;font-weight:900;color:var(--green);min-height:38px;word-break:break-all;letter-spacing:1px}
+    .card-lbl{color:var(--muted);font-size:0.85rem;margin-bottom:8px}
+    #last-code{font-size:1.7rem;font-weight:900;color:var(--green);min-height:42px;word-break:break-all;letter-spacing:1px}
     #last-code.bad{color:var(--red)}
 
-    .counter-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .counter-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .cnt-box{
-      background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.25);
-      border-radius:10px;padding:12px;text-align:center
+      background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);
+      border-radius:12px;padding:16px;text-align:center
     }
-    .cnt-box .num{font-size:2.4rem;font-weight:900;color:var(--accent);line-height:1}
-    .cnt-box .lbl{font-size:0.78rem;color:var(--muted);margin-top:4px}
+    .cnt-box .num{font-size:3rem;font-weight:900;color:var(--green);line-height:1}
+    .cnt-box .lbl{font-size:0.85rem;color:var(--muted);margin-top:6px}
 
-    .items-list{max-height:200px;overflow-y:auto;margin-top:10px}
+    .items-list{max-height:260px;overflow-y:auto;margin-top:12px}
     .scan-row{
       display:flex;justify-content:space-between;align-items:center;
-      padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:0.85rem
+      padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:0.95rem
     }
     .scan-row:last-child{border-bottom:none}
     .scan-row.bad span:first-child{color:var(--red)}
     .qty-badge{
-      background:var(--accent);color:#020617;
-      border-radius:999px;padding:2px 10px;font-weight:700;font-size:0.78rem
+      background:var(--green);color:#020617;
+      border-radius:999px;padding:3px 14px;font-weight:900;font-size:0.9rem
     }
     .bad-badge{
       background:var(--red);color:#fff;
-      border-radius:999px;padding:2px 10px;font-weight:700;font-size:0.72rem
+      border-radius:999px;padding:3px 12px;font-weight:700;font-size:0.78rem
     }
-
     .btn{
-      width:100%;max-width:400px;padding:14px;border:none;border-radius:12px;
-      font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;
+      width:100%;max-width:520px;padding:16px;border:none;border-radius:14px;
+      font-family:'Cairo',sans-serif;font-size:1.1rem;font-weight:900;
       cursor:pointer;transition:transform 0.15s,opacity 0.15s
     }
     .btn:active{transform:scale(0.97)}
-    .btn:disabled{opacity:0.5;cursor:not-allowed}
-    .btn-green{background:var(--green);color:#fff}
-    .btn-blue{background:var(--accent);color:#020617}
+    .btn-green{background:var(--green);color:#020617}
     .btn-outline{background:transparent;color:var(--muted);border:1px solid var(--border)}
 
-    #err{color:var(--red);text-align:center;font-size:0.85rem;padding:8px;max-width:400px}
+    #err{color:var(--red);text-align:center;font-size:0.9rem;padding:8px;max-width:520px}
 
-    #success-section{
-      display:none;flex:1;flex-direction:column;
-      align-items:center;justify-content:center;padding:40px 20px;text-align:center;gap:10px
-    }
-    .big-icon{font-size:6rem;animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275)}
-    @keyframes popIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
-    .success-title{font-size:1.6rem;font-weight:900}
-    .success-sub{color:var(--muted);font-size:0.9rem;line-height:1.5;white-space:pre-line}
-
+    /* شريط الإشعار الكبير أعلى الشاشة */
     #notify-bar{
       position:fixed;top:0;left:0;right:0;
-      padding:10px;text-align:center;font-weight:700;font-size:0.9rem;
+      padding:14px;text-align:center;font-weight:900;font-size:1.05rem;
       transform:translateY(-100%);transition:transform 0.3s;z-index:100;color:#fff
     }
     #notify-bar.ok{background:var(--green)}
     #notify-bar.bad{background:var(--red)}
     #notify-bar.show{transform:translateY(0)}
+
+    .hint-box{
+      width:100%;max-width:520px;background:rgba(14,165,233,0.08);
+      border:1px solid rgba(14,165,233,0.2);border-radius:12px;
+      padding:12px 14px;font-size:0.85rem;color:var(--muted);line-height:1.6;text-align:center
+    }
   </style>
 </head>
 <body>
-  <div id="notify-bar">📦 تم مسح المنتج!</div>
+  <div id="notify-bar">📦 تم!</div>
 
   <header>
-    <h1>📷 ماسح الباركود — كاشير الحاجي عمر</h1>
-    <span class="badge" id="mode-badge">جاري التحميل…</span>
+    <h1>🛒 مسح مشتريات الزبون</h1>
+    <span class="badge badge-green" id="mode-badge">مسح متواصل — الفاتورة تتحدث فوراً</span>
   </header>
 
-  <!-- SCANNER SECTION -->
   <div id="scanner-section">
     <div id="reader"></div>
+
+    <div class="hint-box" id="hint-box">
+      وجّه الكاميرا نحو باركود المنتج. كل منتج يُضاف للفاتورة فوراً. أعد مسح نفس المنتج لزيادة الكمية.
+    </div>
+
     <div class="card">
       <div class="card-lbl">آخر باركود تم مسحه:</div>
       <div id="last-code">—</div>
     </div>
     <div id="err"></div>
 
-    <!-- Continuous mode: counters -->
+    <!-- عدّادات (تظهر في وضع المسح المتواصل) -->
     <div id="cnt-card" class="card" style="display:none">
       <div class="counter-row">
-        <div class="cnt-box"><div class="num" id="cnt-types">0</div><div class="lbl">أصناف مقبولة</div></div>
-        <div class="cnt-box"><div class="num" id="cnt-units">0</div><div class="lbl">إجمالي الوحدات</div></div>
+        <div class="cnt-box"><div class="num" id="cnt-types">0</div><div class="lbl">أصناف مضافة</div></div>
+        <div class="cnt-box"><div class="num" id="cnt-units">0</div><div class="lbl">إجمالي القطع</div></div>
       </div>
     </div>
 
-    <!-- Continuous mode: items list -->
+    <!-- قائمة المنتجات الممسوحة -->
     <div id="list-card" class="card" style="display:none">
-      <div class="card-lbl">📦 المنتجات الممسوحة:</div>
+      <div class="card-lbl">📦 المنتجات المضافة للفاتورة:</div>
       <div class="items-list" id="items-list">
-        <div style="color:var(--muted);text-align:center;padding:14px">لم تمسح أي منتج بعد</div>
+        <div style="color:var(--muted);text-align:center;padding:16px">ابدأ بمسح أول منتج…</div>
       </div>
     </div>
 
-    <button class="btn btn-green" id="btn-finish" style="display:none" onclick="finish()">
-      ✅ إنهاء المسح
-    </button>
     <button class="btn btn-outline" id="btn-rescan" style="display:none" onclick="location.reload()">
       🔄 مسح منتج آخر
     </button>
-  </div>
-
-  <!-- SUCCESS SECTION -->
-  <div id="success-section">
-    <div class="big-icon" id="success-icon">✅</div>
-    <div class="success-title" id="success-title">تم الإرسال بنجاح!</div>
-    <div class="success-sub" id="success-sub">يمكنك إغلاق هذه النافذة</div>
-    <button class="btn btn-blue" style="max-width:300px" onclick="tryClose()">✕ إغلاق النافذة</button>
-    <button class="btn btn-outline" style="max-width:300px" onclick="location.reload()">🔄 مسح آخر</button>
+    <button class="btn btn-green" id="btn-done">✅ تم — إغلاق الماسح</button>
   </div>
 
 <script>
-// === STATE ===
-var MODE = (new URLSearchParams(location.search).get('mode') || 'pos');
-var DEBOUNCE = 1500;
+// ═══════════ الحالة ═══════════
+var MODE = (new URLSearchParams(location.search).get('mode') || 'continuous');
+var DEBOUNCE = 1200;      // منع المسح المزدوج السريع لنفس اللحظة
 var scanner = null;
-var items = {};      // barcode -> count (accepted only)
-var rejected = {};   // barcode -> count (not found in inventory)
+var items = {};           // باركود → عدد (المقبول)
+var names = {};           // باركود → اسم
+var rejected = {};        // باركود → عدد (غير موجود)
+var lastCode = '';
 var lastTs = 0;
-var pending = {};    // barcode -> timeout id, awaiting cashier verdict
 
-// === SETUP ===
+// ═══════════ الإعداد حسب الوضع ═══════════
 var badge = document.getElementById('mode-badge');
-if (MODE === 'continuous') {
-  badge.textContent = '🔄 مسح متواصل';
-  badge.className = 'badge badge-green';
-  show('cnt-card'); show('list-card'); show('btn-finish');
-} else {
-  badge.textContent = '🎯 مسح منتج واحد';
+if (MODE === 'pos') {
+  // وضع منتج واحد
+  badge.textContent = 'مسح صنف واحد';
   badge.className = 'badge badge-blue';
+  document.querySelector('header h1').textContent = '📷 مسح صنف';
   show('btn-rescan');
+} else {
+  // وضع المسح المتواصل (الافتراضي)
+  show('cnt-card'); show('list-card');
 }
 
-// === START SCANNER ===
+// ═══════════ تشغيل الكاميرا ═══════════
 scanner = new Html5Qrcode('reader', {verbose: false});
-
 scanner.start(
   {facingMode: 'environment'},
   {
     fps: 15,
-    qrbox: {width: 280, height: 160},
+    qrbox: {width: 320, height: 200},
     formatsToSupport: [
       Html5QrcodeSupportedFormats.EAN_13,
       Html5QrcodeSupportedFormats.EAN_8,
@@ -198,14 +187,36 @@ scanner.start(
   document.getElementById('err').textContent = '⚠️ تعذّر الوصول للكاميرا: ' + e;
 });
 
-// === LISTEN FOR CASHIER VERDICT ===
-// الكاشير يرد: {scannerVerdict: {code, ok, name}}
+// ═══════════ عند المسح — إرسال فوري للكاشير ═══════════
+function onScan(code) {
+  var now = Date.now();
+  code = String(code).trim();
+  // السماح بإعادة مسح نفس الباركود بعد مهلة قصيرة (لزيادة الكمية)
+  if (code === lastCode && (now - lastTs) < DEBOUNCE) return;
+  if (code !== lastCode && (now - lastTs) < 400) return; // منع رشقات سريعة مختلطة
+  lastCode = code; lastTs = now;
+
+  document.getElementById('last-code').textContent = code;
+  document.getElementById('last-code').classList.remove('bad');
+
+  // إرسال فوري للكاشير — هو يضيفه للفاتورة ويرد بالنتيجة
+  sendToCashier(code);
+}
+
+// ═══════════ إرسال الباركود للكاشير ═══════════
+function sendToCashier(code) {
+  var payload = {code: code, ts: Date.now()};
+  // 1) localStorage (الجسر الأساسي مع نافذة الكاشير)
+  try { localStorage.setItem('pos_scan', JSON.stringify(payload)); } catch(e) {}
+  // 2) postMessage للنافذة الأم إن وُجدت
+  try { if (window.opener && !window.opener.closed) window.opener.postMessage({scannerCode: code}, '*'); } catch(e) {}
+}
+
+// ═══════════ استقبال نتيجة الكاشير (موجود / غير موجود) ═══════════
 window.addEventListener('message', function(e){
-  if (e.data && e.data.scannerVerdict) {
-    handleVerdict(e.data.scannerVerdict);
-  }
+  if (e.data && e.data.scannerVerdict) handleVerdict(e.data.scannerVerdict);
 });
-// نقرأ أيضاً من localStorage (للحالات اللي ما في opener)
+// قراءة احتياطية من localStorage
 setInterval(function(){
   try {
     var raw = localStorage.getItem('pos_verdict');
@@ -217,161 +228,111 @@ setInterval(function(){
       }
     }
   } catch(e){}
-}, 300);
+}, 250);
 
-// === SCAN HANDLER ===
-function onScan(code) {
-  var now = Date.now();
-  if (now - lastTs < DEBOUNCE) return;
-  lastTs = now;
-
-  code = code.trim();
-  document.getElementById('last-code').textContent = code;
-  document.getElementById('last-code').classList.remove('bad');
-
-  // أرسل للكاشير ليتحقق — لا نحتفل بعد
-  sendForCheck(code);
-
-  // مهلة أمان: إذا ما وصل رد خلال 2.5 ثانية نعتبره ناجح مبدئياً (توافقية مع نسخ قديمة)
-  if (pending[code]) clearTimeout(pending[code]);
-  pending[code] = setTimeout(function(){
-    delete pending[code];
-    // ما وصل رد — نفترض نجاح (الكاشير القديم ما بيرد)
-    handleVerdict({code: code, ok: true, name: '', assumed: true});
-  }, 2500);
-}
-
-// === VERDICT FROM CASHIER ===
+// ═══════════ معالجة النتيجة ═══════════
 function handleVerdict(v) {
   var code = String(v.code || '').trim();
   if (!code) return;
-  if (pending[code]) { clearTimeout(pending[code]); delete pending[code]; }
 
   var r = document.getElementById('reader');
   var nb = document.getElementById('notify-bar');
 
   if (v.ok) {
-    // مقبول
+    // ✅ موجود وأُضيف للفاتورة
     r.classList.add('flash-ok');
     setTimeout(function(){ r.classList.remove('flash-ok'); }, 400);
+    beep(true);
 
     nb.className = 'ok show';
-    nb.textContent = MODE === 'continuous'
-      ? ('✅ أُضيف للفاتورة: ' + (v.name || code))
-      : ('✅ تم: ' + (v.name || code));
-    setTimeout(function(){ nb.classList.remove('show'); }, 1200);
+    nb.textContent = '✅ أُضيف للفاتورة: ' + (v.name || code);
+    setTimeout(function(){ nb.classList.remove('show'); }, 1300);
 
     if (MODE === 'continuous') {
       items[code] = (items[code] || 0) + 1;
-      if (v.name) items['__name__' + code] = v.name;
+      if (v.name) names[code] = v.name;
+      delete rejected[code];
       updateCounters();
       renderList();
-      // لا تغلق — استمر
+      // يبقى يمسح — لا إغلاق
     } else {
       showSuccess(true, code, v.name);
     }
   } else {
-    // مرفوض — غير موجود بالمستودع
+    // ❌ غير موجود بالمستودع
     r.classList.add('flash-bad');
     setTimeout(function(){ r.classList.remove('flash-bad'); }, 600);
+    beep(false);
 
     document.getElementById('last-code').classList.add('bad');
 
     nb.className = 'bad show';
     nb.textContent = '❌ غير موجود بالمستودع: ' + code;
-    setTimeout(function(){ nb.classList.remove('show'); }, 2200);
+    setTimeout(function(){ nb.classList.remove('show'); }, 2400);
 
     if (MODE === 'continuous') {
       rejected[code] = (rejected[code] || 0) + 1;
       renderList();
-      // استمر بالمسح
     } else {
       showSuccess(false, code, '');
     }
   }
 }
 
-// === SEND TO CASHIER FOR VERIFICATION ===
-function sendForCheck(code) {
-  var payload = {code: code, ts: Date.now()};
-  try { localStorage.setItem('pos_scan', JSON.stringify(payload)); } catch(e) {}
-  try { if (window.opener && !window.opener.closed) window.opener.postMessage({scannerCode: code}, '*'); } catch(e) {}
-}
-
-// === COUNTERS / LIST (continuous) ===
+// ═══════════ العدّادات والقائمة ═══════════
 function updateCounters() {
-  var realCodes = Object.keys(items).filter(function(k){ return k.indexOf('__name__') !== 0; });
-  var types = realCodes.length;
-  var units = realCodes.reduce(function(a,k){ return a + items[k]; }, 0);
+  var codes = Object.keys(items);
+  var types = codes.length;
+  var units = codes.reduce(function(a,k){ return a + items[k]; }, 0);
   document.getElementById('cnt-types').textContent = types;
   document.getElementById('cnt-units').textContent = units;
 }
-
 function renderList() {
   var html = '';
-  // مقبول
   Object.keys(items).forEach(function(c) {
-    if (c.indexOf('__name__') === 0) return;
-    var label = items['__name__' + c] || c;
+    var label = names[c] || c;
     html += '<div class="scan-row"><span>📦 ' + esc(label) + '</span><span class="qty-badge">× ' + items[c] + '</span></div>';
   });
-  // مرفوض
   Object.keys(rejected).forEach(function(c) {
-    html += '<div class="scan-row bad"><span>⛔ ' + esc(c) + '</span><span class="bad-badge">غير موجود × ' + rejected[c] + '</span></div>';
+    html += '<div class="scan-row bad"><span>⛔ ' + esc(c) + '</span><span class="bad-badge">غير موجود</span></div>';
   });
   document.getElementById('items-list').innerHTML = html ||
-    '<div style="color:var(--muted);text-align:center;padding:14px">لم تمسح أي منتج</div>';
+    '<div style="color:var(--muted);text-align:center;padding:16px">ابدأ بمسح أول منتج…</div>';
 }
 
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-// === FINISH (continuous) ===
-function finish() {
-  stopScanner();
-  var realCodes = Object.keys(items).filter(function(k){ return k.indexOf('__name__') !== 0; });
-  var count = realCodes.reduce(function(a,k){ return a + items[k]; }, 0);
-  var rejCount = Object.keys(rejected).length;
-
-  document.getElementById('scanner-section').style.display = 'none';
-  var ss = document.getElementById('success-section');
-  ss.style.display = 'flex';
-  document.getElementById('success-icon').textContent = '✅';
-  document.getElementById('success-title').textContent = 'انتهى المسح';
-
-  var msg = 'تمت إضافة ' + realCodes.length + ' صنف — ' + count + ' وحدة للفاتورة';
-  if (rejCount > 0) msg += '\n⚠️ ' + rejCount + ' باركود لم يُضف (غير موجود بالمستودع)';
-  document.getElementById('success-sub').textContent = msg;
-  setTimeout(tryClose, 3500);
+// ═══════════ نغمة بسيطة للتأكيد ═══════════
+function beep(ok) {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = ok ? 880 : 220;
+    gain.gain.value = 0.15;
+    osc.start();
+    setTimeout(function(){ osc.stop(); ctx.close(); }, ok ? 120 : 250);
+  } catch(e){}
 }
 
-// === SUCCESS (single mode) ===
+// ═══════════ وضع المنتج الواحد: شاشة النتيجة ═══════════
 function showSuccess(ok, code, name) {
-  stopScanner();
-  document.getElementById('scanner-section').style.display = 'none';
-  var ss = document.getElementById('success-section');
-  ss.style.display = 'flex';
-
-  if (ok) {
-    document.getElementById('success-icon').textContent = '✅';
-    document.getElementById('success-title').textContent = 'تمت الإضافة بنجاح!';
-    document.getElementById('success-sub').textContent =
-      (name ? (name + '\n') : '') + 'الباركود: ' + code + '\nيمكنك إغلاق هذه النافذة';
-    setTimeout(tryClose, 2500);
-  } else {
-    document.getElementById('success-icon').textContent = '❌';
-    document.getElementById('success-title').textContent = 'الباركود غير موجود!';
-    document.getElementById('success-sub').textContent =
-      'الباركود: ' + code + '\nلم تتم الإضافة — يجب تسجيل المنتج أولاً\nمن قسم 📦 المستودع';
-    // لا نغلق تلقائياً — نترك المستخدم يقرأ ويعيد المسح
-  }
+  // في وضع المنتج الواحد نُبقي الماسح شغالاً لكن نُظهر الإشعار فقط
+  // (لا نُغلق تلقائياً حتى يرى التاجر النتيجة)
 }
+
+// ═══════════ زر الإغلاق ═══════════
+document.getElementById('btn-done').onclick = function(){
+  stopScanner();
+  tryClose();
+};
 
 function tryClose() { try { window.close(); } catch(e) {} }
 function stopScanner() { try { if (scanner && scanner.isScanning) scanner.stop(); } catch(e) {} }
 
-// === UTILS ===
-function show(id) { var el = document.getElementById(id); if (el) el.style.display = ''; }
-function hide(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; }
+// ═══════════ أدوات ═══════════
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function show(id){ var el=document.getElementById(id); if(el) el.style.display=''; }
+function hide(id){ var el=document.getElementById(id); if(el) el.style.display='none'; }
 </script>
 </body>
 </html>
